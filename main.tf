@@ -1,31 +1,49 @@
-resource "random_integer" "random_suffix" {
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.0.0"
+    }
+  }
+  required_version = ">= 0.14.9"
+}
+
+provider "azurerm" {
+  features {}
+}
+
+resource "random_integer" "random_id" {
   min = 1000
   max = 9999
 }
 
-resource "azurerm_resource_group" "example" {
-  name     = "rg_cloud_shell_Ryan_LE-${random_integer.random_suffix.result}"
-  location = "France Central"
+resource "azurerm_resource_group" "rg" {
+  name     = "rg-ryan-le-${random_integer.random_id.result}"
+  location = "France Central"  # Région France Central
 }
 
-resource "azurerm_app_service_plan" "example" {
-  name                = "asp_cloud_shell_Ryan_LE-${random_integer.random_suffix.result}"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  kind                = "Windows"
+resource "azurerm_app_service_plan" "asp" {
+  name                = "asp-ryan-le-${random_integer.random_id.result}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  kind                = "Linux"
+
   sku {
     tier = "Basic"
     size = "B1"
   }
+
+  reserved = true
 }
 
-resource "azurerm_app_service" "example" {
-  name                = "webapp_cloud_shell_Ryan_LE-${random_integer.random_suffix.result}"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  app_service_plan_id = azurerm_app_service_plan.example.id
+resource "azurerm_app_service" "webapp" {
+  name                = "webapp-ryan-le-${random_integer.random_id.result}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  app_service_plan_id = azurerm_app_service_plan.asp.id
 
   site_config {
-    windows_fx_version = "WINDOWS|latest"
+    java_version    = "1.7"
+    java_container  = "TOMCAT"
   }
 }
