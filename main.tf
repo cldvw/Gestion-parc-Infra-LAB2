@@ -12,7 +12,7 @@ resource "azurerm_app_service_plan" "example" {
   name                = "asp_cloud_shell_Ryan_LE-${random_integer.random_suffix.result}"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
-  os_type             = "Windows"
+  kind                = "Windows"
   sku {
     tier = "Basic"
     size = "B1"
